@@ -105,7 +105,7 @@
         return obj
       },
       goBookDetail(id) {
-        this.$router.push({name: 'books_detail', params: {id: id}})
+        this.$router.push({name: 'book_detail', params: {id: id}})
       }
     },
     components: {

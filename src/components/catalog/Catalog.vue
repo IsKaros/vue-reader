@@ -66,7 +66,6 @@
             } else {
               this.chapterScroller.refresh()
             }
-          console.log(this.chapterScroller)
         })
       },
       changeChapter(chapter) {

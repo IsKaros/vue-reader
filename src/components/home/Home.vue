@@ -18,6 +18,7 @@
   import BooksList from '../books/HomeBooks'
   import {rank} from '../../api/api'
   import {Indicator} from 'mint-ui'
+  import {mapMutations} from 'vuex'
 
   export default {
     name: 'Home',
@@ -35,12 +36,18 @@
     created() {
       this.getRankData()
     },
+    mounted() {
+      if (window.localStorage.bookShelf) {
+        this.SET_BOOKSHELF(JSON.parse(window.localStorage.bookShelf))
+      }
+    },
     components: {
       Header,
       Slider,
       BooksList
     },
     methods: {
+      ...mapMutations(['SET_BOOKSHELF']),
       getRankData() {
         Indicator.open('加载中...')
         rank('54d42d92321052167dfb75e3').then(res => {

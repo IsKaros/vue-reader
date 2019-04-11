@@ -13,6 +13,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "better-scroll": "^1.13.2",
+    "fastclick": "^1.0.6",
     "mint-ui": "^2.2.13",
     "reset-css": "^4.0.1",
     "vue": "^2.5.2",

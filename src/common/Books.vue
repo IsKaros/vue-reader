@@ -81,7 +81,6 @@
       _initScroller() {
         this.$nextTick(() => {
           if (!this.bookScroller) {
-            console.log(typeof this.$refs.books.style.height)
             this.$refs.books.style.height = this.wrapperHeight + 'vh'
             this.bookScroller = new BScroll(this.$refs.books, {
               click: true,
@@ -105,7 +104,6 @@
             this.bookScroller.refresh()
             this.bookScroller.finishPullDown()
           })
-          console.log(this.bookScroller)
           if (this.isOnScroll) {
             this.bookScroller.on('scroll', this.Scroll)
           }

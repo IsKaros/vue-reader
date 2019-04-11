@@ -10,14 +10,14 @@
           <img :src="item.author.avatar" alt="" class="avatar">
         </div>
         <div class="comment">
-            <div class="name">
-              {{item.author.nickname}}
-            </div>
-            <div class="title">{{item.title}}</div>
-            <Star :score="item.rating"></Star>
-            <div class="content">{{item.content}}</div>
-            <span class="time">{{item.created | comments}}</span>
-            <span class="helpful">{{item.helpful.yes}}人觉得有用</span>
+          <div class="name">
+            {{item.author.nickname}}
+          </div>
+          <div class="title">{{item.title}}</div>
+          <Star :score="item.rating"></Star>
+          <div class="content">{{item.content}}</div>
+          <span class="time">{{item.created | comments}}</span>
+          <span class="helpful">{{item.helpful.yes}}人觉得有用</span>
         </div>
       </li>
     </ul>
@@ -26,6 +26,7 @@
 <script>
   import {BookComments} from '../../api/api'
   import Star from '../star/Star'
+
   export default {
     name: 'Comments',
     props: {
@@ -39,9 +40,7 @@
         comments: []
       }
     },
-    computed: {
-
-    },
+    computed: {},
     filters: {
       comments(time) {
         let currentTime = Math.round(new Date() / 1000)
@@ -62,7 +61,7 @@
       }
     },
     created() {
-     this.getBookComments()
+      this.getBookComments()
     },
     methods: {
       // 根据评论的'helpful'属性进行排序
@@ -83,8 +82,9 @@
       getBookComments() {
         BookComments(this.id).then(res => {
           if (res.data.ok) {
-            this.comments = res.data.reviews.slice(0, 5)
+            this.comments = res.data.reviews
             this.sortComments(this.comments, 'helpful', 'yes')
+            this.comments = res.data.reviews.slice(0, 5)
             this.getAvatar(this.comments)
             console.log(this.comments)
           }
@@ -98,6 +98,7 @@
 </script>
 <style lang="scss" scoped>
   @import "../../public/scss/mixin";
+
   .comments {
     .comments-top {
       height: 6vh;
@@ -118,7 +119,7 @@
       display: flex;
       margin: 1vh 5.3vw;
       @include border-b-1px(#ebebeb);
-      .avatar-wrapper{
+      .avatar-wrapper {
         width: 9.3vw;
         height: 100%;
         .avatar {

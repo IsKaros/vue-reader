@@ -6,7 +6,7 @@
         <span class="count">共{{bookShelf.length}}本</span>
         <div class="right">
           <span class="normal" v-show="!showEdit" @click="showEdit=!showEdit">编辑</span>
-          <span class="edit" v-show="showEdit" >
+          <span class="edit" v-show="showEdit">
             <span class="cancel" @click="showEdit=!showEdit">取消</span>
             <span class="delete" @click="deleteBook">删除</span>
           </span>
@@ -14,15 +14,15 @@
       </div>
       <div class="content">
         <ul>
-          <li v-for="(item,index) in bookShelf" :key="index" class="book" ref="books">
+          <li v-for="(item,index) in bookShelf" :key="index" class="book" ref="books" @click="goRead(item._id)">
             <img :src="item.cover" alt="" class="picture">
             <div class="desc">
               <h4 class="name">{{item.title}}</h4>
-                <div class="read">
-                  <span class="chapter">阅读到第{{item._id|getChapter}}章</span>
-                  <span class="go-detail" @click="goDetail(item._id)" v-show="!showEdit"></span>
-                </div>
-                <input type="checkbox" class="check-box" v-show="showEdit" @click="checkEvent($event,item)">
+              <div class="read">
+                <span class="chapter">阅读到第{{item._id|getChapter}}章</span>
+                <span class="go-detail" @click="goDetail(item._id)" v-show="!showEdit"></span>
+              </div>
+              <input type="checkbox" class="check-box" v-show="showEdit" @click="checkEvent($event,item)">
             </div>
           </li>
         </ul>
@@ -35,8 +35,9 @@
   </div>
 </template>
 <script>
-  import {mapState, mapMutations} from 'vuex'
+  import {mapGetters, mapMutations} from 'vuex'
   import CommonHeader from '../../common/CommonHeader'
+
   export default {
     name: 'BookShelf',
     data() {
@@ -47,14 +48,14 @@
       }
     },
     computed: {
-      ...mapState(['bookShelf'])
+      ...mapGetters({bookShelf: 'getBookShelf'})
     },
     created() {
       console.log(this.bookShelf)
+      console.log(JSON.stringify(this.bookShelf))
     },
     filters: {
       getChapter(id) {
-        console.log(id)
         let shelf = JSON.parse(window.localStorage.getItem('book')) ? JSON.parse(window.localStorage.getItem('book')) : {}
         console.log(shelf[id])
         if (shelf[id]) {
@@ -64,18 +65,12 @@
         }
       }
     },
-    beforeRouteEnter(to, from, next) {
-      next((vm) => {
-        vm.getShelfLocalStorage()
-      })
-    },
     beforeRouteLeave(to, from, next) {
-      next((vm) => {
-        vm.setShelfLocalStorage()
-      })
+      this.setShelfLocalStorage()
+      next()
     },
     methods: {
-      ...mapMutations(['REMOVE_BOOKSHELF', 'GET_BOOKSHELF']),
+      ...mapMutations(['REMOVE_BOOKSHELF', 'SET_BOOKSHELF']),
       goDetail(id) {
         this.$router.push({name: 'book_detail', params: {id: id}})
       },
@@ -83,6 +78,7 @@
         for (let i in this.removeList) {
           this.REMOVE_BOOKSHELF(this.removeList[i])
         }
+        this.showEdit = false
         console.log(this.bookShelf)
       },
       checkEvent($event, item) {
@@ -95,13 +91,13 @@
         }
       },
       setShelfLocalStorage() {
-        let book = JSON.parse(window.localStorage.getItem('book')) ? JSON.parse(window.localStorage.getItem('bookshelf')) : {}
+        let book = JSON.parse(window.localStorage.getItem('book')) ? JSON.parse(window.localStorage.getItem('book')) : {}
+
         book.shelf = this.bookShelf
-        window.localStorage.setItem('bookShelf', JSON.stringify(bookShelf))
+        window.localStorage.setItem('bookShelf', JSON.stringify(this.bookShelf))
       },
-      getShelfLocalStorage() {
-        let bookShelf = JSON.parse(window.localStorage.getItem('book')) ? JSON.parse(window.localStorage.getItem('book')) : {}
-        this.GET_BOOKSHELF(bookShelf)
+      goRead(id) {
+        this.$router.push({name: 'read', params: {id}})
       }
     },
     components: {
@@ -112,6 +108,7 @@
 <style lang="scss" scoped>
   @import "../../public/scss/variable";
   @import "../../public/scss/mixin";
+
   .shelf {
     position: relative;
     width: 100vw;

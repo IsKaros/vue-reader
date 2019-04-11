@@ -43,7 +43,8 @@
           <span class="font" @click="increaseSize" :class="{disabled:titleFont>=28}">Aa+</span>
         </div>
         <div class="setting-item pattern" ref="patterns">
-          <span v-for="(item, index) in patterns" :key="index" @click="changePattern" :class="{active:currentPattern.name==item.name}">{{item.name}}</span>
+          <span v-for="(item, index) in patterns" :key="index" @click="changePattern"
+                :class="{active:currentPattern.name==item.name}">{{item.name}}</span>
         </div>
         <div class="setting-item turn-pages">
           <span class="prev" @click="turnPrev" :class="{disabled:currentChapter<=0}">上一章</span>
@@ -90,7 +91,12 @@
           title: '#0c2e10',
           content: 'rgba(12,46,16,.8)'
         }],
-        currentPattern: {},
+        currentPattern: {
+          name: '默认',
+          background: '#eee6dd',
+          title: '#333',
+          content: '#5c5d58'
+        },
         showSetting: false,
         txtFont: 18,
         titleFont: 22,
@@ -126,11 +132,10 @@
         vm.getBookLocalStorage()
       })
     },
-    beforeRouteLeave(to, from, next) {
-      next((vm) => {
-        vm.setUserLocalStorage()
-        vm.setBookLocalStorage()
-      })
+    beforeRouteLeave (to, from, next) {
+      this.setUserLocalStorage()
+      this.setBookLocalStorage()
+      next()
     },
     methods: {
       // 通过id获取书源
@@ -142,9 +147,7 @@
       },
       // 通过对应的书源获取章节
       getBookChapter(id) {
-        Indicator.open('加载中...')
         BookChapters(id).then(res => {
-          console.log(res)
           if (res.status === 200) {
             let chapters = res.data.chapters
             this.bookName = res.data.bookName
@@ -159,8 +162,8 @@
       },
       // 通过获取的章节数据中的链接获取对应章节的内容
       getChapterContent(link) {
+        Indicator.open('加载中...')
         ChapterContent(link).then(res => {
-          console.log(res)
           let chapter = res.data.chapter
           this.bookContent = this._instanteBook(chapter.title, chapter.cpContent)
           Indicator.close()
@@ -206,9 +209,9 @@
             console.log(this.$refs.patterns.children[i])
             this.currentPattern = pattern
             this.$refs.patterns.children[i].classList.add('active')
-            this.$refs.read.style.backgroundColor = pattern.background
-            this.$refs.title.style.color = pattern.title
-            this.$refs.content.style.color = pattern.content
+            this.$refs.read.style.backgroundColor = this.currentPattern.background
+            this.$refs.title.style.color = this.currentPattern.title
+            this.$refs.content.style.color = this.currentPattern.content
             return
           }
         }
@@ -266,6 +269,7 @@
       // 数据持久化之localStorage的设置
       setBookLocalStorage() {
         let localShelf = JSON.parse(window.localStorage.getItem('book')) ? JSON.parse(window.localStorage.getItem('book')) : {}
+
         localShelf[this.$route.params.id] = {}
         localShelf[this.$route.params.id].currentChapter = this.currentChapter
         localShelf[this.$route.params.id].bookSource = this.BookSourcesId
@@ -293,12 +297,15 @@
       // 获取用户设置
       getUserLocalStorage() {
         let localShelf = JSON.parse(window.localStorage.getItem('userSet')) ? JSON.parse(window.localStorage.getItem('userSet')) : {}
-        this.txtFont = localShelf.txtFont
-        this.titleFont = localShelf.titleFont
-        this.currentPattern = localShelf.currentPattern
-        this.$refs.read.style.backgroundColor = this.currentPattern.background
-        this.$refs.title.style.color = this.currentPattern.title
-        this.$refs.content.style.color = this.currentPattern.content
+        if (Reflect.ownKeys(localShelf).length !== 0) {
+          console.log(Reflect.ownKeys(localShelf).length !== 0)
+          this.txtFont = localShelf.txtFont
+          this.titleFont = localShelf.titleFont
+          this.currentPattern = localShelf.currentPattern
+          this.$refs.read.style.backgroundColor = this.currentPattern.background
+          this.$refs.title.style.color = this.currentPattern.title
+          this.$refs.content.style.color = this.currentPattern.content
+        }
       }
     },
     components: {

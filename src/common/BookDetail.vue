@@ -53,7 +53,7 @@
 </template>
 <script>
   import {book} from '../api/api'
-  import {mapMutations, mapState} from 'vuex'
+  import {mapMutations, mapGetters} from 'vuex'
   import Comments from '../components/comments/Comments'
   import CommonHeader from './CommonHeader'
 
@@ -61,7 +61,7 @@
     name: 'BooksDetail',
     data() {
       return {
-        book: [],
+        book: {},
         update: 0,
         isAdd: false,
         title: '书籍详情'
@@ -71,7 +71,7 @@
       this.getBook()
     },
     computed: {
-      ...mapState(['bookShelf']),
+      ...mapGetters({bookShelf: 'getBookShelf'}),
       wordCount() {
         let result = this.book.wordCount
         if (result >= 1000 && result < 10000) {
@@ -90,13 +90,19 @@
       },
       shelfText() {
         console.log(this.bookShelf)
+        // let localShelf = JSON.parse(window.localStorage.getItem('book')) ? JSON.parse(window.localStorage.getItem('book')) : {}
         for (let i in this.bookShelf) {
-          if (this.bookShelf[i].title === this.book.title) {
+          if (this.bookShelf[i]._id === this.book._id) {
             return '撤出书架'
-          } else {
-            return '加入书架'
           }
         }
+        return '加入书架'
+        // for (var i = 0; i < this.bookShelf; i++) {
+        //   if (this.bookShelf[i].title === this.book.title) {
+        //     return '撤出书架'
+        //   }
+        // }
+        // return '加入书架'
       }
     },
     methods: {
@@ -104,6 +110,7 @@
       getBook() {
         book(this.$route.params.id).then(res => {
           if (res.status === 200) {
+            // console.log(res.data)
             this.book = res.data
             this.update = this.formatingTime(this.book.updated)
             this.getCover(this.book)
@@ -133,21 +140,28 @@
         this.$router.push({name: 'read', params: {id: this.$route.params.id}})
       },
       toggleBook() {
-        if (this.bookShelf.indexOf(this.book) !== -1) {
-          this.REMOVE_BOOKSHELF(this.book)
-        } else {
-          this.ADD_BOOKSHELF(this.book)
-          this.setBookLocalStorage()
+        console.log(this.bookShelf, this.book.title)
+        var localShelf = JSON.parse(window.localStorage.getItem('bookShelf')) ? JSON.parse(window.localStorage.getItem('bookShelf')) : {}
+        for (var i = 0; i < this.bookShelf.length; i++) {
+          // console.log(this.bookShelf, this.book.title)
+          if (this.bookShelf[i].title === this.book.title) {
+            console.log(111)
+            this.REMOVE_BOOKSHELF(this.book)
+            delete localShelf[this.$route.params.id]
+            return
+          }
         }
+        this.ADD_BOOKSHELF(this.book)
+        this.setBookLocalStorage()
       },
       // 数据持久化之localStorage的设置
       setBookLocalStorage() {
-        let localShelf = JSON.parse(window.localStorage.getItem('book')) ? JSON.parse(window.localStorage.getItem('book')) : {}
+        let localShelf = JSON.parse(window.localStorage.getItem('bookShelf')) ? JSON.parse(window.localStorage.getItem('bookShelf')) : {}
         // console.log(this.$route.params.id)
-        console.log(localShelf)
         localShelf[this.$route.params.id] = {}
-        localShelf[this.$route.params.id].currentChapter = 0
-        window.localStorage.setItem('book', JSON.stringify(localShelf))
+        localShelf[this.$route.params.id].currentChapter = 1
+        localShelf[this.$route.params.id].cover = this.book.cover
+        window.localStorage.setItem('bookShelf', JSON.stringify(localShelf))
       }
     },
     components: {
@@ -195,7 +209,8 @@
       }
       .read {
         padding: 0 5.3vw 3.0vh 5.3vw;
-        .add-book, .start-read {
+        .add-book,
+        .start-read {
           display: inline-block;
           width: 40vw;
           height: 6.5vh;

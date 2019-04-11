@@ -7,6 +7,7 @@ import store from './store'
 import Mint from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import axios from 'axios'
+import FastClick from 'fastclick'
 import './public/scss/_index.scss'
 import './public/scss/_icon.scss'
 import initializeBooks from './public/js/BooksDom'
@@ -15,6 +16,7 @@ Vue.config.productionTip = false
 Vue.prototype.initializeBooks = initializeBooks
 Vue.prototype.$axios = axios
 Vue.use(Mint)
+FastClick.attach(document.body)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
